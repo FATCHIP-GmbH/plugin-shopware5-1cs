@@ -9,7 +9,7 @@
   <property name="dist"  location="./build/versions"/>
   <property name="pluginname"  value="FatchipFCSPayment"/>
   <property name="zipname"  value="FatchipFCSPayment"/>
-  <property name="repository" value="FATCHIP-GmbH/plugin-shopware5-computop"/>
+  <property name="repository" value="FATCHIP-GmbH/plugin-shopware5-1cs"/>
 
 
   <!-- property name="expires"  value="2011-05-11"/ -->
@@ -77,7 +77,7 @@
     <exec executable="bash">
       <arg value="${basedir}/../bin/github-release.sh" />
       <arg value="${repository}" />
-      <arg value="v${version}_fcs" />
+      <arg value="v${version}" />
       <arg value="${githubtoken}" />
       <arg value="${releasetitle}" />
       <arg value="${releasecomment}" />
