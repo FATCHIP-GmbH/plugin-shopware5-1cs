@@ -1,6 +1,6 @@
 [submodule "Components/Api"]
 	path = Components/Api
 	url = https://github.com/FATCHIP-GmbH/library-1cs
-	branch = main
+	branch = master
 
 
