@@ -1,0 +1,6 @@
+# phpstorm
+.idea/*
+#phpdocumentor
+output/
+# composer
+composer.lock
