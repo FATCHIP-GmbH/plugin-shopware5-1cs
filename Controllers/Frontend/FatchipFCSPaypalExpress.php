@@ -58,7 +58,9 @@ class Shopware_Controllers_Frontend_FatchipFCSPaypalExpress extends Shopware_Con
      */
     public function indexAction()
     {
-        $this->forward('confirm');
+        if ($this->checkBasket() !== true) {
+            $this->forward('confirm');
+        }
     }
 
     /**

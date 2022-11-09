@@ -63,7 +63,9 @@ class Shopware_Controllers_Frontend_FatchipFCSEasyCredit extends Shopware_Contro
      */
     public function indexAction()
     {
-        $this->forward('confirm');
+        if ($this->checkBasket() !== true) {
+            $this->forward('confirm');
+        }
     }
 
     /**
