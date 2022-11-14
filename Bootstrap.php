@@ -46,10 +46,10 @@ use Shopware\Plugins\FatchipFCSPayment\Bootstrap\Models;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\ControllerPath;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\AfterPay;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\AmazonPay;
+use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\AmazonPayCookie;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Checkout;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\CreditCard;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\EasyCredit;
-use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Klarna;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\KlarnaPayments;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Logger;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Debit;
@@ -57,6 +57,7 @@ use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Debit;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Backend\Templates;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Backend\OrderList;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\PaypalExpress;
+use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\PaypalExpressCookie;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Service;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\TemplateRegistration;
 
@@ -213,6 +214,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             [PaypalExpress::class, null],
             [CreditCard::class, null],
             [AfterPay::class, null],
+            [AmazonPayCookie::class, null],
+            [PaypalExpressCookie::class, null]
         ];
 
         foreach ($subscribers as $subscriberClass) {
