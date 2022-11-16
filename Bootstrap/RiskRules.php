@@ -37,9 +37,7 @@ use Shopware\Models\Payment\Payment;
 class RiskRules extends Bootstrap
 {
     /**
-     * Create risk rules.
-     *
-     * @see createFirst Cash SolutionRiskRule
+     * Create risk rules
      *
      * @throws \Exception
      * @return void
@@ -55,6 +53,23 @@ class RiskRules extends Bootstrap
         $this->createFirstCashRiskRule('fatchip_firstcash_ideal',
             'BILLINGLANDISNOT', 'NL');
     }
+
+    /**
+     * removes risk rules.
+     *
+     * @throws \Exception
+     * @return void
+     */
+    public function removeRiskRules()
+    {
+        $this->removeFirstCashRiskRule('fatchip_firstcash_easycredit');
+        /*
+                $this->createFirstCashRiskRule('fatchip_firstcash_przelewy24');
+        */
+
+        $this->removeFirstCashRiskRule('fatchip_firstcash_ideal');
+    }
+
 
 
     /**
@@ -87,12 +102,40 @@ class RiskRules extends Bootstrap
         $valueRule->setPayment($payment);
         $rules[] = $valueRule;
 
-        if ($payment->getRuleSets() === null ||
+        if ($payment->getRuleSets() == null ||
             $payment->getRuleSets()->count() < $this->getNumberOfRiskrules($paymentName)) {
             $payment->setRuleSets($rules);
             foreach ($rules as $rule) {
                 $manager->persist($rule);
             }
+            $manager->flush($payment);
+        }
+    }
+
+    /**
+     * removes risk rules.
+     *
+     * @see RuleSet
+     *
+     * @param string $paymentName payment method to unrescrict
+     *
+     * @throws \Exception
+     * @return void
+     */
+    private function removeFirstCashRiskRule($paymentName)
+    {
+        /** @var \Shopware\Components\Model\ModelManager $manager */
+        $manager = $this->plugin->get('models');
+        $payment = $this->getPaymentObjByName($paymentName);
+
+        if ($payment) {
+            $rules = $payment->getRuleSets();
+            foreach ($rules as $rule) {
+                $manager->remove($rule);
+                $manager->flush($rule);
+            }
+            $payment->setRuleSets(null);
+            $manager->persist($payment);
             $manager->flush($payment);
         }
     }
@@ -109,7 +152,7 @@ class RiskRules extends Bootstrap
      */
     private function getNumberOfRiskrules($paymentName)
     {
-        if ($paymentName == 'fatchip_firstcash_klarna_installment' || $paymentName == 'fatchip_firstcash_klarna_invoice') {
+        if ($paymentName === 'fatchip_firstcash_klarna_installment' || $paymentName === 'fatchip_firstcash_klarna_invoice') {
             return 5;
         }
         return 1;

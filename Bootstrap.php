@@ -49,7 +49,6 @@ use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\AmazonPay;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Checkout;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\CreditCard;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\EasyCredit;
-use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Klarna;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\KlarnaPayments;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Logger;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Debit;
@@ -108,7 +107,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
 
         $this->subscribeEvent('Enlight_Controller_Front_DispatchLoopStartup', 'onStartDispatch');
 
-        return ['success' => true, 'invalidateCache' => ['backend', 'config', 'proxy']];
+        return ['success' => true];
     }
 
     /**
@@ -310,22 +309,32 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
 
     /**
      * Uninstalls the plugin
+     * and removes Plugin data
+     * sw base removes ini snippets, configuration,
+     * menu entries and template entries
      *
      * @return array
      */
     public function uninstall()
     {
-        return $this->disable();
+        $models = new Models();
+        $models->removeModels();
+        $riskRules = new RiskRules();
+        $riskRules->removeRiskRules();
+        $this->removeBackendSnippets();
+        return ['success' => true];
     }
 
     /**
      * Secure uninstall plugin method
      *
+     * does not remove Plugin data only subscribers,
+     * cronjobs, config elemtents
      * @return array
      */
     public function secureUninstall()
     {
-        return $this->disable();
+        return ['success' => true];
     }
 
     /**
@@ -347,11 +356,11 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $attributes->createAttributes();
         $payments->createPayments();
 
-        return $this->invalidateCaches(true);
+        return ['success' => true];
     }
 
     /**
-     * invalidates all caches
+     * invalidates caches
      * @param bool $return
      * @return array
      */
@@ -361,12 +370,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             'success' => $return,
             'invalidateCache' => [
                 'backend',
-                'config',
-                'frontend',
-                'http',
                 'proxy',
-                'router',
-                'template',
                 'theme',
             ],
         ];
@@ -459,7 +463,6 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         );
         if ($payment === null) {
             // do nothing
-
         } else {
             try {
                 Shopware()->Models()->remove($payment);
@@ -467,5 +470,25 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             } catch (ORMException $e) {
             }
         }
+    }
+
+    public function removeBackendSnippets()
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->delete('Shopware\Models\Snippet\Snippet', 'snippets')
+            ->where('snippets.namespace = :namespace1')
+            ->setParameter('namespace1', 'backend/fcfcs__order/main')
+            ->orwhere('snippets.namespace = :namespace1')
+            ->setParameter('namespace1', 'backend/fcfcs_order/main')
+            ->orwhere('snippets.namespace = :namespace1')
+            ->setParameter('namespace1', 'frontend/checkout/firstcash_easycredit_confirm');
+        $result = $builder->getQuery()->execute();
+
+        $builder->delete('Shopware\Models\Snippet\Snippet', 'snippets')
+            ->where('snippets.namespace = :namespace1')
+            ->setParameter('namespace1', 'backend/index/view/main');
+        $builder->andWhere('snippets.name = :name1')
+            ->setParameter('name1', 'FatchipFCSApilog/index');
+        $result = $builder->getQuery()->execute();
     }
 }
