@@ -51,7 +51,6 @@ class Models extends Bootstrap
     {
         $em = $this->plugin->get('models');
         $schemaTool = new SchemaTool($em);
-        // ToDo foreach all folders in Models Folder
 
         try {
             $schemaTool->createSchema(
@@ -65,6 +64,40 @@ class Models extends Bootstrap
 
         try {
             $schemaTool->createSchema(
+                [
+                    $em->getClassMetadata('Shopware\CustomModels\FatchipFCSApilog\FatchipFCSApilog'),
+                ]
+            );
+        } catch (Exception $e) {
+            // ignore
+        }
+    }
+
+    /**
+     * removes db tables / models
+     *
+     * @see SchemaTool::dropSchema()
+     * @see ModelManager::getClassMetadata()
+     *
+     * @return void
+     */
+    public function removeModels()
+    {
+        $em = $this->plugin->get('models');
+        $schemaTool = new SchemaTool($em);
+
+        try {
+            $schemaTool->dropSchema(
+                [
+                    $em->getClassMetadata('Shopware\CustomModels\FatchipFCSIdeal\FatchipFCSIdealIssuers'),
+                ]
+            );
+        } catch (Exception $e) {
+            // ignore
+        }
+
+        try {
+            $schemaTool->dropSchema(
                 [
                     $em->getClassMetadata('Shopware\CustomModels\FatchipFCSApilog\FatchipFCSApilog'),
                 ]
