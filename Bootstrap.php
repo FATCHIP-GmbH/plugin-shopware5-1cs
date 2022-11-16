@@ -135,6 +135,9 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $this->subscribeEvent('Enlight_Controller_Front_DispatchLoopStartup', 'onStartDispatch');
         $this->addControllersToSeoBlacklist();
 
+        $this->createCronJob('Cleanup Firstcash Payment Logs', 'cleanupPaymentLogs', 86400, true);
+        $this->subscribeEvent('Shopware_CronJob_CleanupPaymentLogs', 'cleanupPaymentLogs');
+
         return ['success' => true, 'invalidateCache' => ['backend', 'config', 'proxy']];
     }
 
@@ -499,6 +502,35 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         }
     }
 
+    /**
+     * used by Cleanup Firstcash Payment Logs Cronjob
+     * deletes all entries in
+     * s_plugin_fatchip_firstcash_api_log
+     * older than 2 years
+     *
+     * @return void
+     */
+    public function cleanupPaymentLogs() {
+        $builder = $this->getLogQuery();
+        $result = $builder->getQuery()->getArrayResult();
+    }
+
+    /**
+     * returns sql base query
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getLogQuery()
+    {
+        $twoYearsAgo = date('Y-m-d H:i:s', strtotime('-2 years'));
+
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->delete()
+            ->from('Shopware\CustomModels\FatchipFCSApilog\FatchipFCSApilog', 'log')
+            ->where($builder->expr()->lte('log.creationDate', "'" . $twoYearsAgo . "'"));
+        return $builder;
+    }
+      
     /**
      * adds all payment controllers to seo blacklist
      * this will set noindex, nofollow in the meta header
