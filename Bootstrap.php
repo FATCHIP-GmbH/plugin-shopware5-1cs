@@ -46,6 +46,7 @@ use Shopware\Plugins\FatchipFCSPayment\Bootstrap\Models;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\ControllerPath;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\AfterPay;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\AmazonPay;
+use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\AmazonPayCookie;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Checkout;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\CreditCard;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\EasyCredit;
@@ -56,6 +57,7 @@ use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Debit;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Backend\Templates;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Backend\OrderList;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\PaypalExpress;
+use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\PaypalExpressCookie;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\Service;
 use Shopware\Plugins\FatchipFCSPayment\Subscribers\TemplateRegistration;
 
@@ -64,6 +66,31 @@ use Shopware\Plugins\FatchipFCSPayment\Subscribers\TemplateRegistration;
  */
 class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
+    const pluginControllers = [
+        'FatchipFCSAfterpay',
+        'FatchipFCSAjax',
+        'FatchipFCSAmazon',
+        'FatchipFCSAmazonCheckout',
+        'FatchipFCSAmazonRegister',
+        'FatchipFCSCreditCard',
+        'FatchipFCSEasyCredit',
+        'FatchipFCSIdeal',
+        'FatchipFCSKlarnaPayments',
+        'FatchipFCSLastschrift',
+        'FatchipFCSPaydirekt',
+        'FatchipFCSPayment',
+        'FatchipFCSPaypalExpress',
+        'FatchipFCSPaypalExpressCheckout',
+        'FatchipFCSPaypalExpressRegister',
+        'FatchipFCSPaypalStandard',
+        'FatchipFCSPostFinance',
+        'FatchipFCSPrzelewy24',
+        'FatchipFCSSofort'
+        ];
+
+    const blacklistConfigVar = 'sSEOVIEWPORTBLACKLIST';
+    const blacklistDBConfigVar = 'seoviewportblacklist';
+
     /**
      * registers the custom models and plugin namespaces
      */
@@ -106,6 +133,10 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $this->registerJavascript();
 
         $this->subscribeEvent('Enlight_Controller_Front_DispatchLoopStartup', 'onStartDispatch');
+        $this->addControllersToSeoBlacklist();
+
+        $this->createCronJob('Cleanup Firstcash Payment Logs', 'cleanupPaymentLogs', 86400, true);
+        $this->subscribeEvent('Shopware_CronJob_CleanupPaymentLogs', 'cleanupPaymentLogs');
 
         return ['success' => true];
     }
@@ -212,6 +243,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             [PaypalExpress::class, null],
             [CreditCard::class, null],
             [AfterPay::class, null],
+            [AmazonPayCookie::class, null],
+            [PaypalExpressCookie::class, null]
         ];
 
         foreach ($subscribers as $subscriberClass) {
@@ -304,6 +337,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      */
     public function disable()
     {
+        $this->removeControllersFromSeoBlacklist();
         return $this->invalidateCaches(true);
     }
 
@@ -471,7 +505,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             }
         }
     }
-
+    
     public function removeBackendSnippets()
     {
         $builder = Shopware()->Models()->createQueryBuilder();
@@ -490,5 +524,84 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $builder->andWhere('snippets.name = :name1')
             ->setParameter('name1', 'FatchipFCSApilog/index');
         $result = $builder->getQuery()->execute();
+     }
+     
+    /**
+     * used by Cleanup Firstcash Payment Logs Cronjob
+     * deletes all entries in
+     * s_plugin_fatchip_firstcash_api_log
+     * older than 2 years
+     *
+     * @return void
+     */
+    public function cleanupPaymentLogs() {
+        $builder = $this->getLogQuery();
+        $result = $builder->getQuery()->getArrayResult();
+    }
+
+    /**
+     * returns sql base query
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getLogQuery()
+    {
+        $twoYearsAgo = date('Y-m-d H:i:s', strtotime('-2 years'));
+
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->delete()
+            ->from('Shopware\CustomModels\FatchipFCSApilog\FatchipFCSApilog', 'log')
+            ->where($builder->expr()->lte('log.creationDate', "'" . $twoYearsAgo . "'"));
+        return $builder;
+    }
+      
+    /**
+     * adds all payment controllers to seo blacklist
+     * this will set noindex, nofollow in the meta header
+     *
+     * @return void
+     */
+    public function addControllersToSeoBlacklist() {
+        $controllerBlacklist = $this->getControllerBlacklist();
+        if (array_diff(self::pluginControllers, $controllerBlacklist))
+        {
+            $newControllerBlacklist = array_merge(self::pluginControllers, $controllerBlacklist);
+            $this->updateBlackList($newControllerBlacklist);
+        }
+    }
+
+    /**
+     * adds removes all payment controllers from the seo blacklist
+     *
+     * @return void
+     */
+    public function removeControllersFromSeoBlacklist() {
+        $controllerBlacklist = $this->getControllerBlacklist();
+        if (array_diff($controllerBlacklist, self::pluginControllers))
+        {
+            $newControllerBlacklist = array_diff($controllerBlacklist, self::pluginControllers);
+            $this->updateBlackList($newControllerBlacklist);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function getControllerBlacklist()
+    {
+        $config = $this->get(\Shopware_Components_Config::class);
+        $controllerBlacklist = preg_replace('#\s#', '', $config[self::blacklistConfigVar]);
+        return explode(',', $controllerBlacklist);
+    }
+
+    /**
+     * updates the seo blacklist in database
+     * @param $blackList
+     * @return void
+     */
+    private function updateBlackList($blackList)
+    {
+        $sql = 'UPDATE s_core_config_values SET value=\'' . serialize(implode(',', $blackList)) . '\' WHERE element_id = (SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '");';
+        $result = Shopware()->Db()->query($sql);
     }
 }
