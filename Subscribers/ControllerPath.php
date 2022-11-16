@@ -105,6 +105,8 @@ class ControllerPath extends AbstractSubscriber
             => 'onGetBackendControllerPath',
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_FatchipFCSApilog'
             => 'onGetBackendControllerPath',
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_FatchipFCSAPITest'
+            => 'onGetBackendControllerPath',
         );
     }
 

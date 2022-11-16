@@ -53,6 +53,10 @@ class Forms extends Bootstrap
     {
         // general settings
         $this->createGeneralConfigForm(CTPaymentConfigForms::formGeneralTextElements, CTPaymentConfigForms::formGeneralSelectElements);
+        $this->plugin->Form()->setElement('button', 'fatchip_firstcash_apitest_button', [
+            'label' => '<strong>API Test<strong>',
+            'handler' => "function(btn) {" . file_get_contents(__DIR__ . '/../Views/common/backend/apitest/fatchip_fcs_apitest_button_handler.js') . "}"
+        ]);
 
         $this->createCreditCardConfigForm(CTPaymentConfigForms::formCreditCardSelectElements, CTPaymentConfigForms::formCreditCardNumberElements, CTPaymentConfigForms::formCreditCardTextElements);
 
