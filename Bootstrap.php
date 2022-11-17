@@ -133,7 +133,6 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $this->registerJavascript();
 
         $this->subscribeEvent('Enlight_Controller_Front_DispatchLoopStartup', 'onStartDispatch');
-        $this->addControllersToSeoBlacklist();
 
         $this->createCronJob('Cleanup Firstcash Payment Logs', 'cleanupPaymentLogs', 86400, true);
         $this->subscribeEvent('Shopware_CronJob_CleanupPaymentLogs', 'cleanupPaymentLogs');
@@ -328,6 +327,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      */
     public function enable()
     {
+        $this->addControllersToSeoBlacklist();
         return $this->invalidateCaches(true);
     }
 
@@ -603,5 +603,10 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     {
         $sql = 'UPDATE s_core_config_values SET value=\'' . serialize(implode(',', $blackList)) . '\' WHERE element_id = (SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '");';
         $result = Shopware()->Db()->query($sql);
+
+        if ($result->rowCount() === 0) {
+            $sql = 'INSERT INTO s_core_config_values (`element_id`, `value`, `shop_id`) VALUES ((SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '"), \'' . serialize(implode(',', $blackList)) . '\', 1);';
+            $result = Shopware()->Db()->query($sql);
+        }
     }
 }
