@@ -37,7 +37,7 @@ class Menu extends Bootstrap
 {
     const LABELPARENTFIND = ['label' => 'Einstellungen'];
     const LABELFIRSTCASHMENU = 'First Cash';
-    const LABELFIRSTCASHAPILOG = 'API-Protokoll';
+    const LABELFIRSTCASHAPILOG = 'API-Log';
 
     /**
      * Create menu items to access configuration, logs and support page

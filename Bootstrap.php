@@ -86,7 +86,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         'FatchipFCSPostFinance',
         'FatchipFCSPrzelewy24',
         'FatchipFCSSofort'
-        ];
+    ];
 
     const blacklistConfigVar = 'sSEOVIEWPORTBLACKLIST';
     const blacklistDBConfigVar = 'seoviewportblacklist';
@@ -191,13 +191,13 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             $this->Path() . 'Models/'
         );
     }
+
     /**
      * Registers namespaces used by the plugin
      * and its components
      */
     private function registerComponents()
     {
-
         Shopware()->Loader()->registerNamespace(
             'Shopware\Plugins\FatchipFCSPayment',
             $this->Path()
@@ -268,7 +268,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
 
         $info['label'] = $info['label']['de'];
         $info['version'] = $info['currentVersion'];
-        $info['description'] = '<p><img alt="Logo" src="data:image/png;base64,' . $logo . '" /></p>' .$info['description'];
+        $info['description'] = '<p><img alt="Logo" src="data:image/png;base64,' . $logo . '" /></p>' . $info['description'];
 
         return $info;
     }
@@ -420,12 +420,13 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      *
      * @return CTResponse
      */
-    public function callComputopService($requestParams, $payment, $requestType, $url){
+    public function callComputopService($requestParams, $payment, $requestType, $url)
+    {
         $log = new FatchipFCSApilog();
         $log->setPaymentName($payment::paymentClass);
         $log->setRequest($requestType);
         $log->setRequestDetails(json_encode($requestParams));
-        $response =  $payment->callComputop($requestParams, $url);
+        $response = $payment->callComputop($requestParams, $url);
         $log->setTransId($response->getTransID());
         $log->setPayId($response->getPayID());
         $log->setXId($response->getXID());
@@ -453,9 +454,10 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      * @return void
      * @throws Exception
      */
-    public function logRedirectParams($requestParams, $paymentName, $requestType, $response){
+    public function logRedirectParams($requestParams, $paymentName, $requestType, $response)
+    {
         // fix wrong amount is logged PHP Version >= 7.1 see https://stackoverflow.com/questions/42981409/php7-1-json-encode-float-issue/43056278
-        $requestParams['amount'] = (string) $requestParams['amount'];
+        $requestParams['amount'] = (string)$requestParams['amount'];
         $log = new FatchipFCSApilog();
         $log->setPaymentName($paymentName);
         $log->setRequest($requestType);
@@ -505,7 +507,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             }
         }
     }
-    
+
     public function removeBackendSnippets()
     {
         $builder = Shopware()->Models()->createQueryBuilder();
@@ -515,7 +517,9 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             ->orwhere('snippets.namespace = :namespace1')
             ->setParameter('namespace1', 'backend/fcfcs_order/main')
             ->orwhere('snippets.namespace = :namespace1')
-            ->setParameter('namespace1', 'frontend/checkout/firstcash_easycredit_confirm');
+            ->setParameter('namespace1', 'frontend/checkout/firstcash_easycredit_confirm')
+            ->orwhere('snippets.namespace = :namespace1')
+            ->setParameter('namespace1', 'backend/fatchip_fcs_apilog/main');
         $result = $builder->getQuery()->execute();
 
         $builder->delete('Shopware\Models\Snippet\Snippet', 'snippets')
@@ -524,8 +528,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $builder->andWhere('snippets.name = :name1')
             ->setParameter('name1', 'FatchipFCSApilog/index');
         $result = $builder->getQuery()->execute();
-     }
-     
+    }
+
     /**
      * used by Cleanup Firstcash Payment Logs Cronjob
      * deletes all entries in
@@ -534,7 +538,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      *
      * @return void
      */
-    public function cleanupPaymentLogs() {
+    public function cleanupPaymentLogs()
+    {
         $builder = $this->getLogQuery();
         $result = $builder->getQuery()->getArrayResult();
     }
@@ -554,19 +559,19 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             ->where($builder->expr()->lte('log.creationDate', "'" . $twoYearsAgo . "'"));
         return $builder;
     }
-      
+
     /**
      * adds all payment controllers to seo blacklist
      * this will set noindex, nofollow in the meta header
      *
      * @return void
      */
-    public function addControllersToSeoBlacklist() {
+    public function addControllersToSeoBlacklist()
+    {
         $controllerBlacklist = $this->getControllerBlacklist();
-        if (array_diff(self::pluginControllers, $controllerBlacklist))
-        {
+        if (array_diff(self::pluginControllers, $controllerBlacklist)) {
             $newControllerBlacklist = array_merge(self::pluginControllers, $controllerBlacklist);
-            $this->updateBlackList($newControllerBlacklist);
+            $this->updateBlackList($newControllerBlacklist, true);
         }
     }
 
@@ -575,12 +580,12 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      *
      * @return void
      */
-    public function removeControllersFromSeoBlacklist() {
+    public function removeControllersFromSeoBlacklist()
+    {
         $controllerBlacklist = $this->getControllerBlacklist();
-        if (array_diff($controllerBlacklist, self::pluginControllers))
-        {
+        if (array_diff($controllerBlacklist, self::pluginControllers)) {
             $newControllerBlacklist = array_diff($controllerBlacklist, self::pluginControllers);
-            $this->updateBlackList($newControllerBlacklist);
+            $this->updateBlackList($newControllerBlacklist, false);
         }
     }
 
@@ -596,16 +601,21 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
 
     /**
      * updates the seo blacklist in database
-     * @param $blackList
+     * @param array $blackList
+     * @param bool $install set to false on uninstall
      * @return void
      */
-    private function updateBlackList($blackList)
+    private function updateBlackList($blackList, $install)
     {
-        $sql = 'UPDATE s_core_config_values SET value=\'' . serialize(implode(',', $blackList)) . '\' WHERE element_id = (SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '");';
+        $sql = 'UPDATE s_core_config_values SET value=\'' . serialize(
+                implode(',', $blackList)
+            ) . '\' WHERE element_id = (SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '");';
         $result = Shopware()->Db()->query($sql);
 
-        if ($result->rowCount() === 0) {
-            $sql = 'INSERT INTO s_core_config_values (`element_id`, `value`, `shop_id`) VALUES ((SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '"), \'' . serialize(implode(',', $blackList)) . '\', 1);';
+        if ($result->rowCount() === 0 && $install) {
+            $sql = 'INSERT INTO s_core_config_values (`element_id`, `value`, `shop_id`) VALUES ((SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '"), \'' . serialize(
+                    implode(',', $blackList)
+                ) . '\', 1);';
             $result = Shopware()->Db()->query($sql);
         }
     }
