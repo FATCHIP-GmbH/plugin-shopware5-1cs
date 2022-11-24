@@ -515,12 +515,12 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $builder->delete('Shopware\Models\Snippet\Snippet', 'snippets')
             ->where('snippets.namespace = :namespace1')
             ->setParameter('namespace1', 'backend/fcfcs__order/main')
-            ->orwhere('snippets.namespace = :namespace1')
-            ->setParameter('namespace1', 'backend/fcfcs_order/main')
-            ->orwhere('snippets.namespace = :namespace1')
-            ->setParameter('namespace1', 'frontend/checkout/firstcash_easycredit_confirm')
-            ->orwhere('snippets.namespace = :namespace1')
-            ->setParameter('namespace1', 'backend/fatchip_fcs_apilog/main');
+            ->orwhere('snippets.namespace = :namespace2')
+            ->setParameter('namespace2', 'backend/fcfcs_order/main')
+            ->orwhere('snippets.namespace = :namespace3')
+            ->setParameter('namespace3', 'frontend/checkout/firstcash_easycredit_confirm')
+            ->orwhere('snippets.namespace = :namespace4')
+            ->setParameter('namespace4', 'backend/fatchip_fcs_apilog/main');
         $result = $builder->getQuery()->execute();
 
         $builder->delete('Shopware\Models\Snippet\Snippet', 'snippets')
