@@ -477,6 +477,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             'fatchip_firstcash_klarna_installment',
             'fatchip_firstcash_klarna_invoice',
             'fatchip_firstcash_afterpay_installment',
+            'fatchip_firstcash_klarna_pay_now',
         ];
 
         foreach ($oldPayments as $payment) {
