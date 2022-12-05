@@ -138,13 +138,22 @@ class Forms extends Bootstrap
         }
 
         $creditCardTemplateElement = $this->plugin->Form()->getElement('creditCardTemplate');
-        $sql = 'SELECT value FROM s_core_config_values WHERE element_id = ' . $creditCardTemplateElement->getId();
-        $result = Shopware()->Db()->query($sql);
+        $result = Shopware()->Db()->executeQuery(
+            "SELECT value FROM s_core_config_values WHERE element_id = :element_id",
+            [
+                ':element_id' => $creditCardTemplateElement->getId()
+            ]
+        );
         $value = $result->fetch();
         $unserialized = unserialize($value['value']);
         if ($unserialized !== false && ($unserialized === '' || $unserialized === 'ct_responsive_ch' )) {
-            $sql = 'UPDATE s_core_config_values SET value = \'' . serialize('ct_responsive') . '\' WHERE element_id = ' . $creditCardTemplateElement->getId();
-            $result = Shopware()->Db()->query($sql);
+            $result = Shopware()->Db()->executeQuery(
+                "UPDATE s_core_config_values SET value = :value WHERE element_id = :element_id",
+                [
+                    ':value' => serialize('ct_responsive'),
+                    ':element_id' => $creditCardTemplateElement->getId()
+                ]
+            );
         }
     }
 

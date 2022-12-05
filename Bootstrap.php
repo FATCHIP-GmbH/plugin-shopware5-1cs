@@ -613,16 +613,22 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      */
     private function updateBlackList($blackList, $install)
     {
-        $sql = 'UPDATE s_core_config_values SET value=\'' . serialize(
-                implode(',', $blackList)
-            ) . '\' WHERE element_id = (SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '");';
-        $result = Shopware()->Db()->query($sql);
+        $result = Shopware()->Db()->executeQuery(
+            "UPDATE s_core_config_values SET value= :value WHERE element_id = (SELECT id FROM s_core_config_elements WHERE name = :name)",
+            [
+                ':value' => serialize(implode(',', $blackList)),
+                ':name' => self::blacklistDBConfigVar
+            ]
+        );
 
         if ($result->rowCount() === 0 && $install) {
-            $sql = 'INSERT INTO s_core_config_values (`element_id`, `value`, `shop_id`) VALUES ((SELECT id FROM s_core_config_elements WHERE name = "' . self::blacklistDBConfigVar . '"), \'' . serialize(
-                    implode(',', $blackList)
-                ) . '\', 1);';
-            $result = Shopware()->Db()->query($sql);
+            $result = Shopware()->Db()->executeQuery(
+                "INSERT INTO s_core_config_values (`element_id`, `value`, `shop_id`) VALUES ((SELECT id FROM s_core_config_elements WHERE name = :name), :value, 1)",
+                [
+                    ':name' => self::blacklistDBConfigVar,
+                    ':value' => serialize(implode(',', $blackList))
+                ]
+            );
         }
     }
 }
