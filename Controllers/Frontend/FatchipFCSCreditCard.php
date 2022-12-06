@@ -287,6 +287,9 @@ class Shopware_Controllers_Frontend_FatchipFCSCreditCard extends Shopware_Contro
             try {
                 $this->restoreSession($sessionId);
             } catch (Zend_Session_Exception $e) {
+                $this->utils->log('Unable to restore User Session with sessionid ' . $sessionId, [
+                    'error' => $e->getMessage()
+                ]);
             }
         }
 

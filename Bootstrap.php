@@ -91,6 +91,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     const blacklistConfigVar = 'sSEOVIEWPORTBLACKLIST';
     const blacklistDBConfigVar = 'seoviewportblacklist';
 
+    protected $logger;
+
     /**
      * registers the custom models and plugin namespaces
      */
@@ -98,6 +100,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     {
         $this->registerCustomModels();
         $this->registerComponents();
+        $this->logger = new Logger();
     }
 
     /**
@@ -436,10 +439,10 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         try {
             Shopware()->Models()->persist($log);
             Shopware()->Models()->flush($log);
-        } catch (OptimisticLockException $e) {
-            // TODO: log
-        } catch (ORMException $e) {
-            // TODO: log
+        } catch (Exception $e) {
+            $this->logger->logError('Unable to save API Log', [
+                'error' => $e->getMessage()
+            ]);
         }
         return $response;
     }
@@ -505,7 +508,10 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             try {
                 Shopware()->Models()->remove($payment);
                 Shopware()->Models()->flush();
-            } catch (ORMException $e) {
+            } catch (Exception $e) {
+                $this->logger->logError('Unable to remove payment ' . $paymentName, [
+                    'error' => $e->getMessage()
+                ]);
             }
         }
     }

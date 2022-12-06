@@ -32,6 +32,7 @@ namespace Shopware\Plugins\FatchipFCSPayment\Bootstrap;
 use Exception;
 use Fatchip\FCSPayment\CTPaymentAttributes;
 use Shopware\Bundle\AttributeBundle\Service\CrudService;
+use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Logger;
 use Shopware\Plugins\FatchipFCSPayment\Util;
 
 /**
@@ -99,6 +100,7 @@ class Attributes extends Bootstrap
      */
     private function addAttributes($prefix, $table, $attributes)
     {
+        $logger = new Logger();
         foreach ($attributes as $name => $attribute) {
             try {
                 if (Util::isShopwareVersionGreaterThanOrEqual('5.2')) {
@@ -109,7 +111,9 @@ class Attributes extends Bootstrap
                     $this->plugin->get('models')->addAttribute($table, $prefix, $name, $attribute['type']);
                 }
             } catch (Exception $e) {
-                // do nothing
+                $logger->logError('Unable to create Attribute Model:', [
+                    'error' => $e->getMessage()
+                ]);
             }
         }
 
@@ -150,6 +154,7 @@ class Attributes extends Bootstrap
      */
     private function setAttributeVisibilityInBackend($prefix, $table, $attributes)
     {
+        $logger = new Logger();
         foreach ($attributes as $name => $attribute) {
             try {
                 if (isset($attribute['additionalInfo'])) {
@@ -160,7 +165,9 @@ class Attributes extends Bootstrap
                     ]);
                 }
             } catch (Exception $e) {
-                // do nothing
+                $logger->logError('Unable to create Attribute Model:', [
+                    'error' => $e->getMessage()
+                ]);
             }
         }
     }

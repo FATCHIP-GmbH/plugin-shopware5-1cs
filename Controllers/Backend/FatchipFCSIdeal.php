@@ -61,6 +61,7 @@ class Shopware_Controllers_Backend_FatchipFCSIdeal extends Shopware_Controllers_
         $this->plugin = Shopware()->Plugins()->Frontend()->FatchipFCSPayment();
         $this->config = $this->plugin->Config()->toArray();
         $this->paymentService = Shopware()->Container()->get('FatchipFCSPaymentApiClient');
+        $this->utils = Shopware()->Container()->get('FatchipFCSPaymentUtils');
         parent::init();
     }
 
@@ -82,7 +83,6 @@ class Shopware_Controllers_Backend_FatchipFCSIdeal extends Shopware_Controllers_
         $test = Shopware()->Models()->getRepository('Shopware\CustomModels\FatchipFCSIdeal\FatchipFCSIdealIssuers')->findAll();
         if (empty($test)) {
             try {
-
                 foreach ($issuerList as $issuer) {
                     $issuerModel = new \Shopware\CustomModels\FatchipFCSIdeal\FatchipFCSIdealIssuers();
                     $issuerModel->fromArray($issuer);
@@ -91,6 +91,9 @@ class Shopware_Controllers_Backend_FatchipFCSIdeal extends Shopware_Controllers_
                 }
                 Shopware()->Models()->flush($issuerModel);
             } catch (Exception $e) {
+                $this->utils->log('Unable to save iDeal issuer list to db table : ', [
+                    'error' => $e->getMessage()
+                ]);
             }
 
             if ($count > 0) {

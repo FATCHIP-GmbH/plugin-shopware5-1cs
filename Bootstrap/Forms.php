@@ -32,6 +32,7 @@ use Doctrine\ORM\ORMException;
 use Fatchip\FCSPayment\CTPaymentConfigForms;
 use Shopware\Models\Config\Element;
 use Shopware\Models\Config\Form;
+use Shopware\Plugins\FatchipFCSPayment\Subscribers\Frontend\Logger;
 
 /**
  * Class Forms.
@@ -51,6 +52,7 @@ class Forms extends Bootstrap
      */
     public function createForm()
     {
+        $logger = new Logger();
         // general settings
         $this->createGeneralConfigForm(CTPaymentConfigForms::formGeneralTextElements, CTPaymentConfigForms::formGeneralSelectElements);
         $this->plugin->Form()->setElement('button', 'fatchip_firstcash_apitest_button', [
@@ -92,8 +94,10 @@ class Forms extends Bootstrap
         try {
             $this->removeFormElements();
             $this->updateFormElements();
-        } catch (OptimisticLockException $e) {
-        } catch (ORMException $e) {
+        } catch (Exception $e) {
+            $logger->logError('Unable to remove / update form elements:', [
+                'error' => $e->getMessage()
+            ]);
         }
     }
 

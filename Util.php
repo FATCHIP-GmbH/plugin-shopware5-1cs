@@ -867,13 +867,12 @@ class Util
         try {
             $modelManager->persist($customer);
             $modelManager->flush();
-        } catch (OptimisticLockException $e) {
+        } catch (Exception $e) {
             $this->logger->error('Unable to select default payment', [
                 'userID' => $userData['additional']['user']['id'],
                 'paymentID' => $userData['additional']['user']['paymentID'],
                 'defaultPayment' => $defaultPayment
             ]);
-        } catch (ORMException $e) {
         }
     }
 
@@ -899,14 +898,10 @@ class Util
 
         $session->offsetSet('FCSError', $ctError);
 
-        try {
-            $controller->redirect([
-                'action' => 'shippingPayment',
-                'controller' => 'checkout'
-            ]);
-        } catch (Exception $e) {
-            // TODO: log
-        }
+        $controller->redirect([
+            'action' => 'shippingPayment',
+            'controller' => 'checkout'
+        ]);
     }
 
     /**
@@ -930,6 +925,9 @@ class Util
                 Shopware()->Models()->remove($payment);
                 Shopware()->Models()->flush();
             } catch (ORMException $e) {
+                $this->log('Unable to remove payment ' . $paymentName, [
+                    'error' => $e->getMessage()
+                ]);
             }
         }
     }

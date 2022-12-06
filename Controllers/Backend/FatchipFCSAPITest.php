@@ -77,7 +77,7 @@ class Shopware_Controllers_Backend_FatchipFCSAPITest extends Shopware_Controller
         try {
             $success = $service->doAPITest();
         } catch (Exception $e) {
-
+            $success = false;
         }
 
         if ($success) {
