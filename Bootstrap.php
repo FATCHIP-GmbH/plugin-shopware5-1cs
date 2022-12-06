@@ -100,7 +100,6 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     {
         $this->registerCustomModels();
         $this->registerComponents();
-        $this->logger = new Logger();
     }
 
     /**
@@ -440,7 +439,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             Shopware()->Models()->persist($log);
             Shopware()->Models()->flush($log);
         } catch (Exception $e) {
-            $this->logger->logError('Unable to save API Log', [
+            $logger = new Logger();
+            $logger->logError('Unable to save API Log', [
                 'error' => $e->getMessage()
             ]);
         }
@@ -509,7 +509,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
                 Shopware()->Models()->remove($payment);
                 Shopware()->Models()->flush();
             } catch (Exception $e) {
-                $this->logger->logError('Unable to remove payment ' . $paymentName, [
+                $logger = new Logger();
+                $logger->logError('Unable to remove payment ' . $paymentName, [
                     'error' => $e->getMessage()
                 ]);
             }
