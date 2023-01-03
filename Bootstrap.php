@@ -462,7 +462,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     public function logRedirectParams($requestParams, $paymentName, $requestType, $response)
     {
         // fix wrong amount is logged PHP Version >= 7.1 see https://stackoverflow.com/questions/42981409/php7-1-json-encode-float-issue/43056278
-        $requestParams['amount'] = (string)$requestParams['amount'];
+        $requestParams['amount'] = (string) $requestParams['amount'];
         $log = new FatchipFCSApilog();
         $log->setPaymentName($paymentName);
         $log->setRequest($requestType);
@@ -595,7 +595,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     public function removeControllersFromSeoBlacklist()
     {
         $controllerBlacklist = $this->getControllerBlacklist();
-        if (array_diff($controllerBlacklist, self::pluginControllers)) {
+        if (array_diff($controllerBlacklist, self::pluginControllers))
+        {
             $newControllerBlacklist = array_diff($controllerBlacklist, self::pluginControllers);
             $this->updateBlackList($newControllerBlacklist, false);
         }

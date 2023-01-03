@@ -261,6 +261,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             }
             $this->forward('failure');
         }
+
         $userData = Shopware()->Modules()->Admin()->sGetUserData();
         $paymentName = $this->utils->getPaymentNameFromId($userData['additional']['payment']['id']);
         $paymentStatus = ($paymentName === 'fatchip_firstcash_ideal' || $paymentName === 'fatchip_firstcash_sofort') ? self::PAYMENTSTATUSPAID : self::PAYMENTSTATUSRESERVED;
@@ -507,7 +508,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
                 $attribute->setfatchipfcslastschriftdos($response->getDtofsgntr());
                 $attribute->setfatchipfcskreditkarteschemereferenceid($response->getSchemeReferenceID());
                 $cardParam = json_decode($response->getCard(), true);
-                // $attribute->setfatchipfcskreditkartecardholdername($cardParam['cardholderName']);
+                $attribute->setfatchipfcskreditkartecardholdername($cardParam['cardholderName']);
                 Shopware()->Models()->persist($attribute);
                 Shopware()->Models()->flush();
             }
@@ -618,7 +619,9 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             || ($paymentName === 'fatchip_firstcash_paypal_standard' && $this->config['paypalCaption'] === 'AUTO')
             || ($paymentName === 'fatchip_firstcash_paypal_express' && $this->config['paypalCaption'] === 'AUTO')
             || ($paymentName === 'fatchip_firstcash_amazonpay' && $this->config['amazonCaptureType'] === 'AUTO')
-            || ($paymentName === 'fatchip_firstcash_paydirekt' && $this->config['payDirektCaption'] === 'AUTO')))
+            || ($paymentName === 'fatchip_firstcash_paydirekt' && $this->config['payDirektCaption'] === 'AUTO')
+            || ($paymentName === 'fatchip_firstcash_amazonpay' && $this->config['amazonCaptureType'] === 'AUTO')
+            ))
         ) {
             if ($this->config['debuglog'] === 'extended') {
                 $sessionID = $this->session->get('sessionId');
@@ -703,6 +706,13 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
     protected function handleDelayedCapture($orderNumber)
     {
         $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->findOneBy(['number' => $orderNumber]);
+
+        if ($this->config['debuglog'] === 'extended') {
+            $sessionID = $this->session->get('sessionId');
+            $customerId = $this->session->offsetGet('sUserId');
+            $paymentName = $this->paymentClass;
+            $this->utils->log('HandleCapture: loading order ' . $orderNumber . ' from shopware' , ['payment' => $paymentName, 'UserID' => $customerId, 'SessionID' => $sessionID]);
+        }
         if ($order) {
             $paymentName = $order->getPayment()->getName();
             if (($paymentName == 'fatchip_firstcash_creditcard' && $this->config['creditCardCaption'] == 'DELAYED')

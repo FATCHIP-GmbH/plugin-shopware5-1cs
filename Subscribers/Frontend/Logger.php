@@ -66,8 +66,6 @@ class Logger extends AbstractSubscriber
         $this->plugin = Shopware()->Container()->get('plugins')->Frontend()->FatchipFCSPayment();
         $this->config = $this->plugin->Config()->toArray();
 
-        // ToDO use ternary operator here
-        // Shopware()->Application() is deprecated
         $logPath = Shopware()->DocPath();
 
         if (Util::isShopwareVersionGreaterThanOrEqual('5.1')) {

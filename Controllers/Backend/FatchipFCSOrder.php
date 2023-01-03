@@ -126,6 +126,9 @@ class Shopware_Controllers_Backend_FatchipFCSOrder extends Shopware_Controllers_
                 $order->getAttribute()->getfatchipfcskreditkarteschemereferenceid(),
                 $order->getInvoiceAmount() * 100
             );
+            if (strpos($order->getPayment()->getName(), 'fatchip_firstcash_amazonpay') === 0) {
+                $requestParams['Custom'] = 'orderVars=' . base64_encode(json_encode($this->getAmazonRefundPositions($order, $positionIds, $includeShipment)));
+            }
             $refundResponse = $this->plugin->callComputopService($requestParams, $paymentClass, 'REFUND', $paymentClass->getCTRefundURL());
 
             // amazon refunds are handled on receiving the notify call from computop

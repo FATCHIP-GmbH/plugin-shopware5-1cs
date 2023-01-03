@@ -41,7 +41,6 @@ use Shopware;
 
 require_once 'Components/Api/vendor/autoload.php';
 
-
 /**
  * Class Util
  * @package Shopware\Plugins\FatchipFCSPayment\
@@ -110,9 +109,14 @@ class Util
     {
         // to support addresses without house number only use the splitter when numbers are found in street
         if (preg_match('~[0-9]+~', $swAddress['street'])) {
-            $splitAddress = AddressSplitter::splitAddress($swAddress['street']);
-            $street = $splitAddress['streetName'];
-            $housenr = $splitAddress['houseNumber'];
+            try {
+                $splitAddress = AddressSplitter::splitAddress($swAddress['street']);
+                $street = $splitAddress['streetName'];
+                $housenr = $splitAddress['houseNumber'];
+            } catch (Exception $e) {
+                $street = $swAddress['street'];
+                $housenr = '';
+            }
         } else {
             $street = $swAddress['street'];
             $housenr = '';
@@ -924,7 +928,7 @@ class Util
             try {
                 Shopware()->Models()->remove($payment);
                 Shopware()->Models()->flush();
-            } catch (ORMException $e) {
+            } catch (Exception $e) {
                 $this->log('Unable to remove payment ' . $paymentName, [
                     'error' => $e->getMessage()
                 ]);
