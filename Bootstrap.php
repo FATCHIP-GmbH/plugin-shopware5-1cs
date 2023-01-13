@@ -90,6 +90,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
 
     const blacklistConfigVar = 'sSEOVIEWPORTBLACKLIST';
     const blacklistDBConfigVar = 'seoviewportblacklist';
+    const cronjobName = 'Cleanup Firstcash Payment Logs';
 
     protected $logger;
 
@@ -136,7 +137,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
 
         $this->subscribeEvent('Enlight_Controller_Front_DispatchLoopStartup', 'onStartDispatch');
 
-        $this->createCronJob('Cleanup Firstcash Payment Logs', 'cleanupPaymentLogs', 86400, true);
+        $this->createCronJob(self::cronjobName, 'cleanupPaymentLogs', 86400, true);
         $this->subscribeEvent('Shopware_CronJob_CleanupPaymentLogs', 'cleanupPaymentLogs');
 
         return ['success' => true];
@@ -393,6 +394,12 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $attributes->createAttributes();
         $payments->createPayments();
 
+        $this->addControllersToSeoBlacklist();
+        if (! $this->cronjobExists()) {
+            $this->createCronJob(self::cronjobName, 'cleanupCTPaymentLogs', 86400, true);
+            $this->subscribeEvent('Shopware_CronJob_CleanupCTPaymentLogs', 'cleanupCTPaymentLogs');
+        }
+
         return ['success' => true];
     }
 
@@ -639,5 +646,19 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
                 ]
             );
         }
+    }
+
+    /**
+     * @return bool
+     */
+    private function cronjobExists()
+    {
+        $query = "SELECT * from s_crontab where name ='" . self::cronjobName . "'";
+        $result = Shopware()->Db()->executeQuery($query);
+
+        if ($result->rowCount() === 0) {
+            return false;
+        }
+        return true;
     }
 }
