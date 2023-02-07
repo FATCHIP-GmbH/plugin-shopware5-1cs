@@ -128,6 +128,7 @@ class CreditCard extends AbstractSubscriber
             $view->assign('creditCardSilentModeBrandsVisa', (int)$pluginConfig['creditCardSilentModeBrandsVisa']);
             $view->assign('creditCardSilentModeBrandsMaster', (int)$pluginConfig['creditCardSilentModeBrandsMaster']);
             $view->assign('creditCardSilentModeBrandsAmex', (int)$pluginConfig['creditCardSilentModeBrandsAmex']);
+            $view->assign('creditCardSilentModeBrandDetection', (int)$pluginConfig['creditCardSilentModeBrandDetection']);
 
             $view->assign('fatchipFCSCreditCardSilentParams', $silentParams);
             $view->extendsTemplate('frontend/checkout/firstcash_creditcard_confirm.tpl');
@@ -222,9 +223,9 @@ class CreditCard extends AbstractSubscriber
             $apiColorDepth = 8;
         } elseif ($colorDepth <= 15) {
             $apiColorDepth = 15;
-        } elseif ($colorDepth <= 24){
+        } elseif ($colorDepth <= 24) {
             $apiColorDepth = 24;
-        } elseif ($colorDepth <= 32){
+        } elseif ($colorDepth <= 32) {
             $apiColorDepth = 32;
         } else {
             $apiColorDepth = 48;

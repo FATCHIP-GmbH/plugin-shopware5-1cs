@@ -1,5 +1,10 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
+## 1.1.10
+2023-02-06
+* Added automatic credit card detection in silent mode
+* Fixed test mode for credit card silent mode
+
 ## 1.1.9
 2023-01-16
 * Fixed PayPal Express Cookie
