@@ -54,6 +54,12 @@ class Shopware_Controllers_Backend_FatchipFCSIdeal extends Shopware_Controllers_
     private $paymentService;
 
     /**
+     * Utils
+     * @var \Shopware\Plugins\FatchipFCSPayment\Util $utils
+     */
+    protected $utils;
+
+    /**
      * {@inheritdoc}
      */
     public function init()
