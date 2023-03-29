@@ -1,5 +1,10 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
+## 1.1.11
+2023-04-03
+* Added option for encryption method used
+* Fixed iDEAL bank retrieval
+
 ## 1.1.10
 2023-02-07
 * Added automatic credit card detection in silent mode
