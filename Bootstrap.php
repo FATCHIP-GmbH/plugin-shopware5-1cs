@@ -149,7 +149,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
             Shopware()->Container()->get('shopware.snippet_database_handler')
                 ->loadToDatabase($this->Path() . '/Snippets/');
             $message = Shopware()->Snippets()
-                ->getNamespace('frontend/FatchipCTPayment/translations')
+                ->getNamespace('frontend/FatchipFCSPayment/translations')
                 ->get('errorBlowfishNotSupported');
             return ['success' => true, 'message' => $message];
         }
