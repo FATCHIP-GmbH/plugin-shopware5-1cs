@@ -94,8 +94,8 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     const cronjobName = 'Cleanup Firstcash Payment Logs';
 
     // used only for testing OpenSSL cipher platform Support
-    private String $encryption = 'blowfish';
-    private String $blowfishPassword = 'blowfishPassword';
+    private $encryption = 'blowfish';
+    private $blowfishPassword = 'blowfishPassword';
 
     /**
      * registers the custom models and plugin namespaces
