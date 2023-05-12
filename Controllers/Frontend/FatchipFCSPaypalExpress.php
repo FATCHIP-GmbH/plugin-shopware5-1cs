@@ -31,6 +31,8 @@ use Fatchip\FCSPayment\CTOrder\CTOrder;
 use Fatchip\FCSPayment\CTEnums\CTEnumStatus;
 use Fatchip\FCSPayment\CTPaymentMethods\PaypalExpress;
 use Fatchip\FCSPayment\CTPaymentMethodsIframe\PaypalStandard;
+use Shopware\Models\Payment\Payment;
+use Shopware\Models\Dispatch\Dispatch;
 
 /**
  * Class Shopware_Controllers_Frontend_FatchipFCSPaypalStandard
@@ -74,15 +76,41 @@ class Shopware_Controllers_Frontend_FatchipFCSPaypalExpress extends Shopware_Con
      */
     public function gatewayAction()
     {
-        $basket= Shopware()->Modules()->Basket()->sGetBasket();
+        /** @var Shopware\Models\Payment\Payment $paypalExpressPayment */
+        $paypalExpressPayment = Shopware()->Models()->getRepository(Payment::class)->findOneBy(['name' => 'fatchip_firstcash_paypal_express']);
+        $basket = Shopware()->Modules()->Basket()->sGetBasket();
+        $dispatch = Shopware()->Models()->getRepository(Dispatch::class)->findOneBy(['id' => $this->request->getParam('dispatch')]);
+        $selectedPayment = (int) $this->request->getParam('paymentId');
+        $addsurcharges = $selectedPayment !== $paypalExpressPayment->getId();
 
-        // TODO refactor ctOrder creation
+        $taxAutoMode = Shopware()->Config()->get('sTAXAUTOMODE');
+        $userData = $this->getUserData();
+
+        if (!empty($taxAutoMode)) {
+            $discount_tax = Shopware()->Modules()->Basket()->getMaxTax() / 100;
+        } else {
+            $discount_tax = Shopware()->Config()->get('sDISCOUNTTAX');
+            $discount_tax = empty($discount_tax) ? 0 : (float)str_replace(',', '.', $discount_tax) / 100;
+        }
+
+        $basketAmount = $userData['additional']['show_net'] === true ? $basket['AmountNumeric'] : $basket['AmountNetNumeric'] * (1 + $discount_tax);
+        $shippingCosts = $userData['additional']['show_net'] === true ? $this->request->getParam('shipping') : $this->request->getParam('shipping') * (1 + $discount_tax);
+        $surcharge = $addsurcharges ? $paypalExpressPayment->getSurcharge() : 0.0;
+        $surchargePercent = $paypalExpressPayment->getDebitPercent();
+        $surchargeAmountPercent = $addsurcharges ? (($basket['AmountNetNumeric'] + $surcharge) / 100  * $surchargePercent) : 0.0;
+
+        if ((int) $dispatch->getSurchargeCalculation() !== Dispatch::SURCHARGE_CALCULATION_AS_CART_ITEM) {
+            $surcharge = $userData['additional']['show_net'] === true ? $surcharge : $surcharge  * (1 + $discount_tax);
+        }
+        $surchargeAmountPercent = $surchargeAmountPercent  * (1 + $discount_tax);
+
+        $fullAmount = $basketAmount + $shippingCosts + $surcharge + $surchargeAmountPercent;
+
         $ctOrder = new CTOrder();
-        $ctOrder->setAmount($basket['AmountNumeric'] * 100);
+        $ctOrder->setAmount($fullAmount * 100);
         $ctOrder->setCurrency($this->getCurrencyShortName());
         // mandatory for paypalStandard
         $ctOrder->setOrderDesc($this->getOrderDesc());
-
         /** @var PaypalStandard $payment */
         $payment = $this->paymentService->getIframePaymentClass(
             'PaypalStandard',
@@ -211,6 +239,69 @@ class Shopware_Controllers_Frontend_FatchipFCSPaypalExpress extends Shopware_Con
             ->get('errorGeneral'); // . $response->getDescription();
         $ctError['CTErrorCode'] = ''; //$response->getCode();
         $this->forward('shippingPayment', 'checkout', null, ['FCSError' => $ctError]);
+    }
+
+    /**
+     * @return array
+     * @deprecated in 5.6, will be protected in 5.8
+     *
+     * Get complete user-data as an array to use in view
+     *
+     */
+    public function getUserData()
+    {
+        $system = Shopware()->System();
+        $userData = Shopware()->Modules()->Admin()->sGetUserData();
+        if (!empty($userData['additional']['countryShipping'])) {
+            $system->sUSERGROUPDATA = Shopware()->Db()->fetchRow('
+                SELECT * FROM s_core_customergroups
+                WHERE groupkey = ?
+            ', [$system->sUSERGROUP]);
+
+            $taxFree = $this->isTaxFreeDelivery($userData);
+            $this->session->offsetSet('taxFree', $taxFree);
+
+            if ($taxFree) {
+                $system->sUSERGROUPDATA['tax'] = 0;
+                $system->sCONFIG['sARTICLESOUTPUTNETTO'] = 1; // Old template
+                Shopware()->Session()->set('sUserGroupData', $system->sUSERGROUPDATA);
+                $userData['additional']['charge_vat'] = false;
+                $userData['additional']['show_net'] = false;
+                Shopware()->Session()->set('sOutputNet', true);
+            } else {
+                $userData['additional']['charge_vat'] = true;
+                $userData['additional']['show_net'] = !empty($system->sUSERGROUPDATA['tax']);
+                Shopware()->Session()->set('sOutputNet', empty($system->sUSERGROUPDATA['tax']));
+            }
+        }
+
+        return $userData;
+    }
+
+    /**
+     * Validates if the provided customer should get a tax free delivery
+     *
+     * @param array $userData
+     *
+     * @return bool
+     */
+    protected function isTaxFreeDelivery($userData)
+    {
+        if (!empty($userData['additional']['countryShipping']['taxfree'])) {
+            return true;
+        }
+
+        if (empty($userData['additional']['countryShipping']['taxfree_ustid'])) {
+            return false;
+        }
+
+        if (empty($userData['shippingaddress']['ustid'])
+            && !empty($userData['billingaddress']['ustid'])
+            && !empty($userData['additional']['country']['taxfree_ustid'])) {
+            return true;
+        }
+
+        return !empty($userData['shippingaddress']['ustid']);
     }
 }
 
