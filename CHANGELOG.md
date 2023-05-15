@@ -1,5 +1,9 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
+## 1.1.12
+2023-05-15
+* Added transfer of standard shipping costs with Paypal Express
+
 ## 1.1.11
 2023-04-03
 * Added option for encryption method used
