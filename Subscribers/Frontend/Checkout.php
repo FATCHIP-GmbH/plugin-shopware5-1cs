@@ -192,7 +192,7 @@ class Checkout extends AbstractSubscriber
         if ($request->getActionName() === 'finish' && !empty($request->getParam('sUniqueID')) && empty(Shopware()->Session()->get('sOrderVariables'))) {
             if ($order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->findOneBy(['temporaryId' => $request->getParam('sUniqueID')])) {
                 if ($attribute = $order->getAttribute()) {
-                    $orderSessionid = $attribute->getfatchipctsessionId();
+                    $orderSessionid = $attribute->getfatchipfcssessionId();
                 }
             }
             if (empty($orderSessionid)) {

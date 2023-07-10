@@ -407,7 +407,6 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
         $this->addFormTranslations(\Fatchip\FCSPayment\CTPaymentConfigForms::formTranslations);
         $attributes->createAttributes();
         $payments->createPayments();
-
         $this->addControllersToSeoBlacklist();
         if (! $this->cronjobExists()) {
             $this->createCronJob(self::cronjobName, 'cleanupCTPaymentLogs', 86400, true);
@@ -692,7 +691,7 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
     public function checkOpenSSLSupport()
     {
         // need to updated config here!
-        $config = Shopware()->Plugins()->Frontend()->FatchipCTPayment()->Config()->toArray();
+        $config = Shopware()->Plugins()->Frontend()->FatchipFCSPayment()->Config()->toArray();
         $this->blowfishPassword = $config['blowfishPassword'];
         $this->encryption = $config['encryption'];
 

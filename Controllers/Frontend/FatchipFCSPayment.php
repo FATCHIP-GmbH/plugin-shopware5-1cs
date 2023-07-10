@@ -539,7 +539,6 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
         Shopware()->Models()->flush();
     }
 
-
     /**
      * Marks all OrderDetails and Shipping as Fully Refunded
      *
@@ -1031,7 +1030,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             }
 
             $positionAttribute = $position->getAttribute();
-            $positionAttribute->setfatchipctDebit($position->getPrice() * $position->getQuantity());
+            $positionAttribute->setfatchipfcsDebit($position->getPrice() * $position->getQuantity());
 
             Shopware()->Models()->persist($positionAttribute);
             Shopware()->Models()->flush();
@@ -1044,7 +1043,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
 
         if ($includeShipment) {
             $orderAttribute = $order->getAttribute();
-            $orderAttribute->setfatchipctShipdebit($order->getInvoiceShipping());
+            $orderAttribute->setfatchipfcsShipdebit($order->getInvoiceShipping());
             Shopware()->Models()->persist($orderAttribute);
             Shopware()->Models()->flush();
         }

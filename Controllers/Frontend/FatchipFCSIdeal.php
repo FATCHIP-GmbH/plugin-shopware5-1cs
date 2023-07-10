@@ -66,6 +66,46 @@ class Shopware_Controllers_Frontend_FatchipFCSIdeal extends Shopware_Controllers
         $params = $payment->getRedirectUrlParams();
         $this->session->offsetSet('fatchipFCSRedirectParams', $params);
 
+        if ($this->config['debuglog'] === 'extended') {
+            $sessionID = $this->session->get('sessionId');
+            $basket = var_export($this->session->offsetGet('sOrderVariables')->getArrayCopy(), true);
+            $customerId = $this->session->offsetGet('sUserId');
+            $paymentName = $this->paymentClass;
+            $this->utils->log('Redirecting to ' . $payment->getHTTPGetURL($params, $this->config['creditCardTemplate']), ['payment' => $paymentName, 'UserID' => $customerId, 'basket' => $basket, 'SessionID' => $sessionID, 'parmas' => $params]);
+        }
+
         $this->redirect($payment->getHTTPGetURL($params));
+    }
+
+    /**
+     * Handle successful payments.
+     *
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function successAction()
+    {
+        $requestParams = $this->Request()->getParams();
+
+        $sessionId = $requestParams['session'];
+        if ($sessionId) {
+            try {
+                $this->restoreSession($sessionId);
+            } catch (Zend_Session_Exception $e) {
+                $logPath = Shopware()->DocPath();
+
+                if (Util::isShopwareVersionGreaterThanOrEqual('5.1')) {
+                    $logFile = $logPath . 'var/log/FatchipFCSPayment_production.log';
+                } else {
+                    $logFile = $logPath . 'logs/FatchipFCSPayment_production.log';
+                }
+                $rfh = new RotatingFileHandler($logFile, 14);
+                $logger = new \Shopware\Components\Logger('FatchipFCSPayment');
+                $logger->pushHandler($rfh);
+                $ret = $logger->error($e->getMessage());
+            }
+        }
+        parent::successAction();
     }
 }
