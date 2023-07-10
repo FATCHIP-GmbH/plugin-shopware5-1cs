@@ -509,7 +509,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
                 $attribute->setfatchipfcskreditkarteschemereferenceid($response->getSchemeReferenceID());
                 $cardParam = json_decode($response->getCard(), true);
                 $attribute->setfatchipfcskreditkartecardholdername($cardParam['cardholderName']);
-                $attribute->setfatchipctsessionId(Shopware()->Session()->get('sessionId'));
+                $attribute->setfatchipfcssessionId(Shopware()->Session()->get('sessionId'));
                 Shopware()->Models()->persist($attribute);
                 Shopware()->Models()->flush();
             }
