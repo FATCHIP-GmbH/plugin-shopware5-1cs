@@ -691,6 +691,11 @@ class Shopware_Plugins_Frontend_FatchipFCSPayment_Bootstrap extends Shopware_Com
      */
     public function checkOpenSSLSupport()
     {
+        // need to updated config here!
+        $config = Shopware()->Plugins()->Frontend()->FatchipCTPayment()->Config()->toArray();
+        $this->blowfishPassword = $config['blowfishPassword'];
+        $this->encryption = $config['encryption'];
+
         $ciphers = openssl_get_cipher_methods(false);
         $isBlowfishSupported = in_array(Encryption::blowfishCipher, $ciphers);
         $isAES128Supported = in_array(Encryption::aes128Cipher, $ciphers);

@@ -99,8 +99,11 @@ class Shopware_Controllers_Frontend_FatchipFCSPaypalExpress extends Shopware_Con
         $surchargePercent = $paypalExpressPayment->getDebitPercent();
         $surchargeAmountPercent = $addsurcharges ? (($basket['AmountNetNumeric'] + $surcharge) / 100  * $surchargePercent) : 0.0;
 
-        if ((int) $dispatch->getSurchargeCalculation() !== Dispatch::SURCHARGE_CALCULATION_AS_CART_ITEM) {
-            $surcharge = $userData['additional']['show_net'] === true ? $surcharge : $surcharge  * (1 + $discount_tax);
+        $surcharge = 0.0;
+        if (! is_null($dispatch)) {
+            if ((int) $dispatch->getSurchargeCalculation() !== Dispatch::SURCHARGE_CALCULATION_AS_CART_ITEM) {
+                $surcharge = $userData['additional']['show_net'] === true ? $surcharge : $surcharge  * (1 + $discount_tax);
+            }
         }
         $surchargeAmountPercent = $surchargeAmountPercent  * (1 + $discount_tax);
 

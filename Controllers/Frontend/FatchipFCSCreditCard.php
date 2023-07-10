@@ -224,8 +224,7 @@ class Shopware_Controllers_Frontend_FatchipFCSCreditCard extends Shopware_Contro
                 $result = $this->updateRefNrWithComputopFromOrderNumber($customOrdernumber);
 
                 // flag user for successfull initial payment
-                $session = Shopware()->Session();
-                $this->utils->updateUserCreditcardInitialPaymentSuccess($session->get('sUserId'), true);
+                $this->utils->updateUserCreditcardInitialPaymentSuccess($this->session->get('sUserId'), true);
 
                 if(!is_null($result) && $result->getStatus() == 'OK') {
                     $this->autoCapture($customOrdernumber);
