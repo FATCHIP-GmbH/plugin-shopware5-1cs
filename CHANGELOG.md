@@ -1,6 +1,7 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
 ## 1.1.13
+2023-07-11
 * Optimized session handling for iDeal payments
 * Respect customer group when calculation Paypal express shipping costs
 
