@@ -56,7 +56,7 @@ class Shopware_Controllers_Frontend_FatchipFCSCreditCard extends Shopware_Contro
      */
     public function getWhitelistedCSRFActions()
     {
-        $csrfActions = ['success', 'failure', 'notify', 'iframe', 'browserinfo'];
+        $csrfActions = ['success', 'failure', 'notify', 'cancel', 'iframe', 'browserinfo'];
 
         return $csrfActions;
     }
@@ -318,6 +318,42 @@ class Shopware_Controllers_Frontend_FatchipFCSCreditCard extends Shopware_Contro
             // set CTError in Session to prevent csfrs errors
             $this->session->offsetSet('FCSError', $ctError);
             $this->redirect(['controller' => 'checkout', 'action' => 'shippingPayment']);
+        }
+    }
+
+    /**
+     * Handle user cancellation.
+     *
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function cancelAction()
+    {
+        $requestParams = $this->Request()->getParams();
+
+        $ctError = [];
+
+        $response = $this->paymentService->getDecryptedResponse($requestParams);
+
+        $this->plugin->logRedirectParams($this->session->offsetGet('fatchipFCSRedirectParams'), $this->paymentClass, 'REDIRECT', $response);
+
+        $ctError['CTErrorMessage'] = Shopware()->Snippets()
+            ->getNamespace('frontend/FatchipFCSPayment/translations')
+            ->get('cancelPayment'); // . $response->getDescription();
+        $ctError['CTErrorCode'] = $response->getCode();
+        $ctError = $this->hideError($response->getCode()) ? null : $ctError;
+        $url = $this->Front()->Router()->assemble(['controller' => 'checkout', 'action' => 'shippingPayment']);
+        $ccMode = strtolower($this->config['creditCardMode']);
+
+        if ($ccMode === 'iframe' || $ccMode === 'paymentpage') {
+            $this->forward('iframe', 'FatchipFCSCreditCard', null, ['fatchipFCSURL' => $url, 'FCSError' => $ctError]);
+        } else {
+            //$this->forward('shippingPayment', 'checkout', null, ['CTError' => $ctError]);
+            // set CTError in Session to prevent csfrs errors
+            $this->session->offsetSet('FCSError', $ctError);
+            $this->redirect(['controller' => 'checkout', 'action' => 'shippingPayment']);
+
         }
     }
 
