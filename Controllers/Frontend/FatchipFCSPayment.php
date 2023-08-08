@@ -377,7 +377,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             null,
             null,
             null,
-            $this->router->assemble(['action' => 'cancel', 'forceSecure' => true]),
+            $this->router->assemble(['action' => 'cancel', 'forceSecure' => true])
         );
         return $payment;
     }
