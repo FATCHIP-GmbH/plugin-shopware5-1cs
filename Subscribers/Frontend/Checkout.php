@@ -144,9 +144,9 @@ class Checkout extends AbstractSubscriber
             // use FCSError from Session, this was done to prevent csrf Errors from forwarding
             if ($ctError = $session->offsetGet('FCSError')) {
                 $session->offsetUnset('FCSError');
-                $params['CTError'] = $ctError;
+                $params['FCSError'] = $ctError;
             }
-            $view->assign('FCSError', $params['CTError']);
+            $view->assign('FCSError', $params['FCSError']);
         }
 
         if ($request->getActionName() == 'confirm' && (strpos($paymentName, 'fatchip_firstcash') === 0)) {
