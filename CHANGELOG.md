@@ -1,5 +1,10 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
+## 1.1.14
+DATE
+* Added cancel button to credit card iFrame and payment page
+* Fixed display of error messages in some cases
+
 ## 1.1.13
 2023-07-11
 * Optimized session handling for iDeal payments
