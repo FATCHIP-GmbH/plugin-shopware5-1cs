@@ -1,5 +1,9 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
+## 1.1.15
+2024-02-01
+* Fixed class loading problem with SW 5.6.9 and PHP 7.4
+
 ## 1.1.14
 2023-08-08
 * Added cancel button to credit card iFrame and payment page
