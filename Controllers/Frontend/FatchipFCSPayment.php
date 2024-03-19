@@ -179,7 +179,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             $sessionID = $this->session->get('sessionId');
             $basket = var_export($this->session->offsetGet('sOrderVariables')->getArrayCopy(), true);
             $customerId = $this->session->offsetGet('sUserId');
-            $paymentName = $this->paymentClass;
+            $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
             $this->utils->log('Redirecting to ' . $payment->getHTTPGetURL($params), ['payment' => $paymentName, 'UserID' => $customerId, 'basket' => $basket, 'SessionID' => $sessionID, 'parmas' => $params]);
         }
         $this->redirect($payment->getHTTPGetURL($params));
@@ -206,10 +206,11 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             }
             $sessionID = $this->session->get('sessionId');
             $customerId = $this->session->offsetGet('sUserId');
-            $paymentName = $this->paymentClass;
+            $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
             $this->utils->log('FailureAction: ' , ['payment' => $paymentName, 'UserID' => $customerId, 'basket' => $basket, 'SessionID' => $sessionID, 'request' => $requestParams, 'response' => $response ]);
         }
-        $this->plugin->logRedirectParams($this->session->offsetGet('fatchipFCSRedirectParams'), $this->paymentClass, 'REDIRECT', $response);
+        $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
+        $this->plugin->logRedirectParams($this->session->offsetGet('fatchipFCSRedirectParams'), $paymentName, 'REDIRECT', $response);
 
         $ctError = [];
         $ctError['CTErrorMessage'] = Shopware()->Snippets()
@@ -248,7 +249,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
                 $basket = 'NULL';
             }
             $customerId = $this->session->offsetGet('sUserId');
-            $paymentName = $this->paymentClass;
+            $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
             $this->utils->log('SuccessAction: ' , ['payment' => $paymentName, 'UserID' => $customerId, 'basket' => $basket, 'SessionID' => $sessionID, 'Request' => $requestParams, 'Response' => $response]);
         }
         $this->plugin->logRedirectParams($this->session->offsetGet('fatchipFCSRedirectParams'), $this->paymentClass, 'REDIRECT', $response);
@@ -256,7 +257,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             if ($this->config['debuglog'] === 'extended') {
                 $sessionID = $this->session->get('sessionId');
                 $customerId = $this->session->offsetGet('sUserId');
-                $paymentName = $this->paymentClass;
+                $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
                 $this->utils->log('SuccessAction Payment Status was NOT OK: forwarding to failureAction' , ['payment' => $paymentName, 'UserID' => $customerId, 'SessionID' => $sessionID]);
             }
             $this->forward('failure');
@@ -273,6 +274,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             $paymentStatus
         );
         } catch (Exception $e) {
+            $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
             $this->utils->log('SuccessAction Order could not be saved. Check if session was lost upon returning:' , ['payment' => $paymentName, 'UserID' => $customerId, 'SessionID' => $sessionID, 'response' => $response, 'error' => $e->getMessage()]);
             $this->forward('failure');
         }
@@ -280,7 +282,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
         if ($this->config['debuglog'] === 'extended') {
             $sessionID = $this->session->get('sessionId');
             $customerId = $this->session->offsetGet('sUserId');
-            $paymentName = $this->paymentClass;
+            $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
             $this->utils->log('SuccessAction Order was saved with orderNumber : ' . $orderNumber, ['payment' => $paymentName, 'UserID' => $customerId, 'SessionID' => $sessionID]);
         }
         $this->saveTransactionResult($response);
@@ -293,7 +295,7 @@ abstract class Shopware_Controllers_Frontend_FatchipFCSPayment extends Shopware_
             if ($this->config['debuglog'] === 'extended') {
                 $sessionID = $this->session->get('sessionId');
                 $customerId = $this->session->offsetGet('sUserId');
-                $paymentName = $this->paymentClass;
+                $paymentName = $this->paymentClass === 'Paydirekt' ? 'Giropay' : $this->paymentClass;
                 $this->utils->log('updateRefNrWithComputopFromOrderNumber: failure updating RefNR with new orderNumber, Response Status was NOT OK. ' , ['payment' => $paymentName, 'UserID' => $customerId, 'SessionID' => $sessionID]);
             }
             $this->forward('failure');

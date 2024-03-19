@@ -1,5 +1,12 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
+## 1.1.16
+2024-03-18
+* Fixed issue with shippingcost taxes
+* Transmission of new mandatory fields for credit card added
+* Removed paydirekt
+* Added Giropay
+
 ## 1.1.15
 2024-02-01
 * Fixed class loading problem with SW 5.6.9 and PHP 7.4

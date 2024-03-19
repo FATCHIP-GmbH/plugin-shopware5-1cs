@@ -76,7 +76,7 @@ class Forms extends Bootstrap
 
         $this->createLastschriftConfigForm(CTPaymentConfigForms::formLastschriftSelectElements, CTPaymentConfigForms::formLastschriftNumberElements);
 
-        $this->createPayDirektConfigForm(CTPaymentConfigForms::formPayDirektTextElements, CTPaymentConfigForms::formPayDirektSelectElements, CTPaymentConfigForms::formPayDirektNumberElements);
+        // $this->createPayDirektConfigForm(CTPaymentConfigForms::formPayDirektTextElements, CTPaymentConfigForms::formPayDirektSelectElements, CTPaymentConfigForms::formPayDirektNumberElements);
 
         // paypal
         $this->createFormSelectElements(CTPaymentConfigForms::formPayPalSelectElements);
@@ -119,6 +119,8 @@ class Forms extends Bootstrap
         $elements[] = $this->plugin->Form()->getElement('lastschriftDelay');
         $elements[] = $this->plugin->Form()->getElement('lastschriftEvoDebitDelay');
         $elements[] = $this->plugin->Form()->getElement('payDirektCardDelay');
+        $elements[] = $this->plugin->Form()->getElement('payDirektShopApiKey');
+        $elements[] = $this->plugin->Form()->getElement('payDirektCaption');
 
         foreach ($elements as $element) {
             //$element = $em->find('Shopware\Models\Config\Element', $elementId);
@@ -223,24 +225,6 @@ class Forms extends Bootstrap
     {
         $this->createFormSelectElements($formLastschriftSelectElements);
         $this->createFormTextElements($formLastschriftNumberElements);
-    }
-
-    /**
-     * create elements for the paydirekt section of the config form.
-     *
-     * creates Text and Select Elements.
-     *
-     * @param array $formPayDirektTextElements
-     * @param array $formPayDirektSelectElements
-     * @param array $formPayDirektNumberElements
-     *
-     * @return void
-     */
-    private function createPayDirektConfigForm($formPayDirektTextElements, $formPayDirektSelectElements, $formPayDirektNumberElements)
-    {
-        $this->createFormTextElements($formPayDirektTextElements);
-        $this->createFormSelectElements($formPayDirektSelectElements);
-        $this->createFormTextElements($formPayDirektNumberElements);
     }
 
     /**
