@@ -1,5 +1,11 @@
 # Changelog - Shopware First Cash Solution Payment Connector
 
+
+## 1.1.17
+2024-04-18
+* Fixed issues with order line for Klarna payments
+* Fixed shipping costs for credit card
+
 ## 1.1.16
 2024-03-18
 * Fixed issue with shippingcost taxes
