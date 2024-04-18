@@ -844,17 +844,16 @@ class Util
             $discount_tax = Shopware()->Config()->get('sDISCOUNTTAX');
             $discount_tax = empty($discount_tax) ? 0 : (float)str_replace(',', '.', $discount_tax) / 100;
         }
-        $test = $userData['additional']['charge_vat'];
-        $test1 = !empty($test);
         if (!empty($userData['additional']['charge_vat'])) {
+            $shippingCosts =  $this->calculateShippingCosts(false);
             $basketAmount = empty($basket[CartKey::AMOUNT_WITH_TAX_NUMERIC]) ? $basket[CartKey::AMOUNT_NUMERIC] : $basket[CartKey::AMOUNT_WITH_TAX_NUMERIC];
-            $shippingCosts = $userData['additional']['show_net'] === true ? $this->calculateShippingCosts(true) : $this->calculateShippingCosts(true) * (1 + $discount_tax);
         } else {
+            $shippingCosts =  $this->calculateShippingCosts(true);
             $basketAmount = $basket[CartKey::AMOUNT_NET_NUMERIC];
-            $shippingCosts = $this->calculateShippingCosts(true);
         }
-
-        $ctOrder->setAmount(($basketAmount + $shippingCosts) * 100);
+        $amount = ($basketAmount + $shippingCosts) * 100;
+        $amountInt = (int) round($amount,0);
+        $ctOrder->setAmount($amountInt);
         $ctOrder->setCurrency(Shopware()->Container()->get('currency')->getShortName());
         // try catch in case Address Splitter return exceptions
         try {
