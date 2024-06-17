@@ -1,4 +1,4 @@
-{if $FatchipFirstCashPaymentData['isIdealPPRO'] === false }
+{if $FatchipFCSPaymentData['isIdealPPRO'] === false }
 <div class="fatchip-firstcash-payment-ideal-form payment--form-group">
             {block name="frontend_checkout_payment_fatchip_firstcash_ideal_issuer_label"}
                 <p class="none">
