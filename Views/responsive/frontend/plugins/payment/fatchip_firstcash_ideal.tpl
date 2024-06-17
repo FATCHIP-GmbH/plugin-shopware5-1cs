@@ -1,4 +1,5 @@
-    <div class="fatchip-firstcash-payment-ideal-form payment--form-group">
+{if $FatchipFirstCashPaymentData['isIdealPPRO'] === false }
+<div class="fatchip-firstcash-payment-ideal-form payment--form-group">
             {block name="frontend_checkout_payment_fatchip_firstcash_ideal_issuer_label"}
                 <p class="none">
                     <label for="fatchip_firstcash_ideal_issuer">{s name='bankchoose' namespace='frontend/FatchipFCSPayment/translations'}Wählen Sie Ihre Bank{/s}:</label>
@@ -23,3 +24,4 @@
             {/block}
             </div>
     </div>
+{/if}
